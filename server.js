@@ -1,19 +1,22 @@
-// Basit CORS Proxy Sunucusu
 const express = require('express');
-const axios = require('axios');
 const cors = require('cors');
+const axios = require('axios');
+
 const app = express();
 
-// Middleware'ler
-app.use(cors());
-app.use(express.json());
+// Tüm origin'lere izin ver (production'da spesifik origin'ler belirtin)
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST']
+}));
 
 // Proxy endpoint'i
 app.get('/proxy', async (req, res) => {
   try {
     const { url } = req.query;
+    
     if (!url) {
-      return res.status(400).json({ error: 'URL parametresi gerekli' });
+      return res.status(400).json({ error: 'URL parametresi gereklidir' });
     }
 
     const response = await axios.get(url);
@@ -26,19 +29,12 @@ app.get('/proxy', async (req, res) => {
   }
 });
 
-// Kök dizin mesajı
+// Health check endpoint
 app.get('/', (req, res) => {
-  res.send(`
-    <h1>CORS Proxy Sunucusu</h1>
-    <p>Kullanım: /proxy?url=HEDEF_URL</p>
-    <p>Örnek: <a href="/proxy?url=https://jsonplaceholder.typicode.com/todos/1">
-      /proxy?url=https://jsonplaceholder.typicode.com/todos/1
-    </a></p>
-  `);
+  res.send('CORS Proxy Sunucusu Çalışıyor');
 });
 
-// Sunucuyu başlat
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Proxy sunucusu ${PORT} portunda çalışıyor`);
+  console.log(`Sunucu ${PORT} portunda çalışıyor`);
 });
