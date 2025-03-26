@@ -4,22 +4,25 @@ const axios = require('axios');
 
 const app = express();
 
-// Tüm origin'lere izin ver (production'da spesifik origin'ler belirtin)
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST']
-}));
+// Sadece belirli origin'e izin ver
+const corsOptions = {
+  origin: 'https://gokdumano.github.io',
+  methods: ['POST'] // Sadece POST isteklerine izin ver
+};
 
-// Proxy endpoint'i
-app.get('/proxy', async (req, res) => {
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// POST istekleri için proxy endpoint'i
+app.post('/proxy', async (req, res) => {
   try {
-    const { url } = req.query;
+    const { url, data } = req.body;
     
     if (!url) {
       return res.status(400).json({ error: 'URL parametresi gereklidir' });
     }
 
-    const response = await axios.get(url);
+    const response = await axios.post(url, data);
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ 
@@ -29,9 +32,13 @@ app.get('/proxy', async (req, res) => {
   }
 });
 
-// Health check endpoint
+// Kök dizin bilgilendirme mesajı
 app.get('/', (req, res) => {
-  res.send('CORS Proxy Sunucusu Çalışıyor');
+  res.send(`
+    <h1>Özel CORS Proxy Sunucusu</h1>
+    <p>Bu sunucu sadece gokdumano.github.io için çalışmaktadır</p>
+    <p>Kullanım: POST /proxy { "url": "hedef_api_url", "data": { ... } }</p>
+  `);
 });
 
 const PORT = process.env.PORT || 3000;
