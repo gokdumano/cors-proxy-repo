@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: cors-proxy
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    env: node
+    plan: free
