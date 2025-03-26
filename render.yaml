@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: cors-proxy
+    name: private-cors-proxy
     runtime: node
     buildCommand: npm install
     startCommand: npm start
